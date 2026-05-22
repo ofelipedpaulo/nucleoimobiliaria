@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Núcleo Negócios Imobiliário — CRM</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --brand:#1a3a5c;--brand2:#2e6da4;--accent:#e8a020;--accent2:#f5c842;
+  --bg:#0d1b2a;--bg2:#102236;--bg3:#152c42;--bg4:#1c3a52;
+  --surface:#1e3f5a;--surface2:#234566;
+  --text:#e8edf2;--text2:#9cb3c9;--text3:#6a8ba4;
+  --border:#2a4a65;
+  --success:#2ecc7a;--danger:#e74c4c;--warn:#f0a800;--info:#3a9fd4;
+  --radius:10px;--radius-lg:16px;
+}
+body{font-family:'Sora',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+
+/* LOGIN */
+#loginScreen{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:999}
+.login-box{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:3rem 2.5rem;width:100%;max-width:400px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.5)}
+.logo-icon{width:70px;height:70px;background:var(--accent);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;font-size:1.8rem;color:var(--brand)}
+.logo-title{font-size:1.3rem;font-weight:700;color:var(--text);letter-spacing:.02em}
+.logo-sub{font-size:.75rem;color:var(--text3);text-transform:uppercase;letter-spacing:.12em;margin-top:4px}
+.login-box input{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:.85rem 1rem;color:var(--text);font-family:'Sora',sans-serif;font-size:.9rem;margin-bottom:1rem;outline:none;transition:border .2s}
+.login-box input:focus{border-color:var(--accent)}
+.btn-login{width:100%;background:var(--accent);color:var(--brand);border:none;border-radius:var(--radius);padding:.9rem;font-family:'Sora',sans-serif;font-weight:700;font-size:.95rem;cursor:pointer;transition:.2s;letter-spacing:.03em}
+.btn-login:hover{background:var(--accent2);transform:translateY(-1px)}
+.login-hint{font-size:.7rem;color:var(--text3);margin-top:1rem}
+.login-error{color:var(--danger);font-size:.82rem;margin-top:.5rem;min-height:20px}
+
+/* LAYOUT */
+#app{display:none;height:100vh;flex-direction:row}
+#app.visible{display:flex}
+
+/* SIDEBAR */
+.sidebar{width:240px;min-width:240px;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden}
+.sidebar-header{padding:1.5rem 1.25rem 1rem;border-bottom:1px solid var(--border)}
+.s-logo{font-size:.8rem;font-weight:700;color:var(--accent);letter-spacing:.1em;text-transform:uppercase}
+.s-sub{font-size:.7rem;color:var(--text3);margin-top:2px}
+.sidebar-nav{flex:1;padding:1rem 0;overflow-y:auto}
+.nav-section{padding:0 .75rem;margin-bottom:.5rem}
+.nav-section-label{font-size:.65rem;color:var(--text3);text-transform:uppercase;letter-spacing:.12em;padding:.4rem .5rem;margin-bottom:.25rem}
+.nav-btn{display:flex;align-items:center;gap:10px;width:100%;padding:.65rem .75rem;border:none;background:transparent;color:var(--text2);font-family:'Sora',sans-serif;font-size:.85rem;cursor:pointer;border-radius:var(--radius);transition:.15s;text-align:left}
+.nav-btn i{width:18px;text-align:center;font-size:.9rem;color:var(--text3)}
+.nav-btn:hover{background:var(--bg3);color:var(--text)}
+.nav-btn.active{background:var(--surface);color:var(--accent);font-weight:500}
+.nav-btn.active i{color:var(--accent)}
+.badge{margin-left:auto;background:var(--danger);color:#fff;font-size:.65rem;font-weight:700;padding:2px 7px;border-radius:20px}
+.badge.warn{background:var(--warn)}
+.badge.info{background:var(--info)}
+.sidebar-footer{padding:1rem;border-top:1px solid var(--border);font-size:.75rem;color:var(--text3)}
+.user-chip{display:flex;align-items:center;gap:8px}
+.user-avatar{width:30px;height:30px;background:var(--accent);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:700;color:var(--brand)}
+
+/* MAIN */
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.topbar{padding:.9rem 1.5rem;background:var(--bg2);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.page-title{font-size:1rem;font-weight:600;color:var(--text)}
+.topbar-actions{display:flex;gap:8px}
+.btn{padding:.55rem 1rem;border-radius:var(--radius);border:1px solid var(--border);background:var(--bg3);color:var(--text2);font-family:'Sora',sans-serif;font-size:.8rem;cursor:pointer;transition:.15s;display:inline-flex;align-items:center;gap:6px}
+.btn:hover{border-color:var(--accent);color:var(--accent)}
+.btn.primary{background:var(--accent);color:var(--brand);border-color:var(--accent);font-weight:600}
+.btn.primary:hover{background:var(--accent2)}
+.content{flex:1;overflow-y:auto;padding:1.5rem}
+
+/* PAGES */
+.page{display:none}
+.page.active{display:block}
+
+/* STATS */
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:1.5rem}
+.stat-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.25rem}
+.stat-label{font-size:.72rem;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:.5rem}
+.stat-val{font-size:1.8rem;font-weight:700;color:var(--text);line-height:1}
+.stat-val.danger{color:var(--danger)}
+.stat-val.warn{color:var(--warn)}
+.stat-val.success{color:var(--success)}
+.stat-sub{font-size:.75rem;color:var(--text3);margin-top:.4rem}
+
+/* ALERTS */
+.alerts-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem}
+.alert-block{background:var(--bg2);border-radius:var(--radius-lg);border:1px solid var(--border);overflow:hidden}
+.alert-header{padding:.9rem 1.2rem;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;font-weight:600;font-size:.88rem}
+.alert-header.danger{border-left:3px solid var(--danger)}
+.alert-header.warn{border-left:3px solid var(--warn)}
+.alert-header.success{border-left:3px solid var(--success)}
+.alert-header.info{border-left:3px solid var(--info)}
+.alert-list{max-height:200px;overflow-y:auto}
+.alert-item{display:flex;align-items:center;justify-content:space-between;padding:.6rem 1.2rem;font-size:.82rem;border-bottom:1px solid var(--border)}
+.alert-item:last-child{border-bottom:none}
+.alert-name{font-weight:500;color:var(--text)}
+.alert-detail{color:var(--text3);font-size:.75rem}
+.tag{font-size:.67rem;padding:3px 8px;border-radius:20px;font-weight:600}
+.tag.danger{background:rgba(231,76,76,.15);color:var(--danger)}
+.tag.warn{background:rgba(240,168,0,.15);color:var(--warn)}
+.tag.success{background:rgba(46,204,122,.15);color:var(--success)}
+.tag.info{background:rgba(58,159,212,.15);color:var(--info)}
+
+/* TABLE */
+.table-wrap{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;margin-bottom:1rem}
+.table-toolbar{padding:1rem 1.2rem;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
+.search-inp{flex:1;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:.55rem .9rem;color:var(--text);font-family:'Sora',sans-serif;font-size:.85rem;outline:none}
+.search-inp:focus{border-color:var(--accent)}
+table{width:100%;border-collapse:collapse}
+th{padding:.7rem 1rem;text-align:left;font-size:.7rem;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;border-bottom:1px solid var(--border);font-weight:500;background:var(--bg3)}
+td{padding:.8rem 1rem;font-size:.82rem;color:var(--text2);border-bottom:1px solid rgba(42,74,101,.4)}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:var(--bg3)}
+.td-name{color:var(--text);font-weight:500}
+.action-btns{display:flex;gap:6px}
+.icon-btn{background:none;border:1px solid var(--border);border-radius:6px;padding:5px 8px;cursor:pointer;color:var(--text3);font-size:.75rem;transition:.15s;font-family:'Sora',sans-serif}
+.icon-btn:hover{border-color:var(--accent);color:var(--accent)}
+.icon-btn.del:hover{border-color:var(--danger);color:var(--danger)}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);display:flex;align-items:center;justify-content:center;z-index:100;backdrop-filter:blur(2px)}
+.modal-overlay.hidden{display:none}
+.modal{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);width:100%;max-width:600px;max-height:90vh;overflow-y:auto}
+.modal-header{padding:1.25rem 1.5rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.modal-title{font-size:1rem;font-weight:600}
+.modal-body{padding:1.5rem}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.form-group{display:flex;flex-direction:column;gap:.4rem}
+.form-group.full{grid-column:1/-1}
+label{font-size:.75rem;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;font-weight:500}
+input,select,textarea{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:.7rem .9rem;color:var(--text);font-family:'Sora',sans-serif;font-size:.85rem;outline:none;transition:border .2s}
+input:focus,select:focus,textarea:focus{border-color:var(--accent)}
+select option{background:var(--bg3)}
+textarea{resize:vertical;min-height:80px}
+.modal-footer{padding:1rem 1.5rem;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:10px}
+
+/* PROTOCOLS */
+.protocol-grid{display:grid;gap:1rem}
+.protocol-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.25rem}
+.protocol-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:.75rem}
+.protocol-id{font-family:'IBM Plex Mono',monospace;font-size:.75rem;color:var(--accent);font-weight:500}
+.protocol-name{font-weight:600;font-size:.9rem;margin-top:2px}
+.protocol-date{font-size:.75rem;color:var(--text3)}
+.protocol-body{font-size:.82rem;color:var(--text2);line-height:1.6}
+.protocol-status-row{display:flex;align-items:center;gap:8px;margin-top:.75rem}
+.empty{text-align:center;padding:3rem;color:var(--text3);font-size:.88rem}
+.empty i{font-size:2.5rem;display:block;margin-bottom:1rem;opacity:.4}
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="loginScreen">
+  <div class="login-box">
+    <div class="logo-icon"><i class="fa-solid fa-building-columns"></i></div>
+    <div class="logo-title">Núcleo Negócios Imobiliário</div>
+    <div class="logo-sub">CRM Gliferson</div>
+    <br>
+    <input type="text" id="loginUser" placeholder="Usuário">
+    <input type="password" id="loginPass" placeholder="Senha">
+    <button class="btn-login" onclick="doLogin()"><i class="fa-solid fa-right-to-bracket"></i> Entrar</button>
+    <div class="login-error" id="loginErr"></div>
+    <div class="login-hint">Acesso: admin / nucleo2024</div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="s-logo">Núcleo CRM</div>
+      <div class="s-sub">Negócios Imobiliário</div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section">
+        <div class="nav-section-label">Principal</div>
+        <button class="nav-btn active" onclick="goPage('dashboard')"><i class="fa-solid fa-chart-pie"></i> Dashboard</button>
+        <button class="nav-btn" onclick="goPage('clientes')"><i class="fa-solid fa-users"></i> Clientes</button>
+      </div>
+      <div class="nav-section">
+        <div class="nav-section-label">Alertas</div>
+        <button class="nav-btn" onclick="goPage('pagamentos')"><i class="fa-solid fa-dollar-sign"></i> Pagamentos <span class="badge" id="badgePag">0</span></button>
+        <button class="nav-btn" onclick="goPage('aniversarios')"><i class="fa-solid fa-cake-candles"></i> Aniversários <span class="badge warn" id="badgeAniv">0</span></button>
+      </div>
+      <div class="nav-section">
+        <div class="nav-section-label">Suporte</div>
+        <button class="nav-btn" onclick="goPage('protocolos')"><i class="fa-solid fa-ticket"></i> Protocolos <span class="badge info" id="badgeProt">0</span></button>
+      </div>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="user-chip">
+        <div class="user-avatar">AD</div>
+        <div>
+          <div style="color:var(--text);font-size:.8rem;font-weight:500">Admin</div>
+          <div style="font-size:.68rem">Gliferson</div>
+        </div>
+        <button onclick="doLogout()" style="margin-left:auto;background:none;border:none;color:var(--text3);cursor:pointer;font-size:.85rem" title="Sair"><i class="fa-solid fa-right-from-bracket"></i></button>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="topbar">
+      <span class="page-title" id="pageTitle">Dashboard</span>
+      <div class="topbar-actions">
+        <button class="btn primary" onclick="openModal('add')" id="btnAdd" style="display:none"><i class="fa-solid fa-plus"></i> Novo Cliente</button>
+        <button class="btn primary" onclick="openProtocolModal()" id="btnProt" style="display:none"><i class="fa-solid fa-plus"></i> Novo Protocolo</button>
+      </div>
+    </div>
+    <div class="content">
+
+      <!-- DASHBOARD -->
+      <div id="pageDashboard" class="page active">
+        <div class="stats-grid" id="statsGrid"></div>
+        <div class="alerts-row">
+          <div class="alert-block">
+            <div class="alert-header danger"><i class="fa-solid fa-triangle-exclamation" style="color:var(--danger)"></i> Pagamentos Atrasados</div>
+            <div class="alert-list" id="dashPagAtras"></div>
+          </div>
+          <div class="alert-block">
+            <div class="alert-header warn"><i class="fa-solid fa-cake-candles" style="color:var(--warn)"></i> Aniversários (7 dias)</div>
+            <div class="alert-list" id="dashAniv"></div>
+          </div>
+        </div>
+        <div class="alerts-row">
+          <div class="alert-block">
+            <div class="alert-header warn"><i class="fa-solid fa-clock" style="color:var(--warn)"></i> Pagamentos Próximos (5 dias)</div>
+            <div class="alert-list" id="dashPagProx"></div>
+          </div>
+          <div class="alert-block">
+            <div class="alert-header info"><i class="fa-solid fa-ticket" style="color:var(--info)"></i> Protocolos Abertos</div>
+            <div class="alert-list" id="dashProts"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CLIENTES -->
+      <div id="pageClientes" class="page">
+        <div class="table-wrap">
+          <div class="table-toolbar">
+            <input class="search-inp" type="text" placeholder="Buscar por nome, CPF, e-mail, telefone..." id="searchInp" oninput="renderTable()">
+          </div>
+          <div style="overflow-x:auto">
+            <table>
+              <thead><tr><th>Nome</th><th>Telefone</th><th>CPF</th><th>E-mail</th><th>Nascimento</th><th>Próx. Pgto</th><th>Status</th><th>Ações</th></tr></thead>
+              <tbody id="clientTable"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- PAGAMENTOS -->
+      <div id="pagePagamentos" class="page">
+        <div class="table-wrap">
+          <div class="alert-header danger" style="padding:1rem 1.2rem;border-radius:var(--radius-lg) var(--radius-lg) 0 0"><i class="fa-solid fa-triangle-exclamation" style="color:var(--danger)"></i> Pagamentos Atrasados</div>
+          <table><thead><tr><th>Nome</th><th>Telefone</th><th>Dia Pgto</th><th>Valor</th><th>Status</th></tr></thead><tbody id="pagAtrasTable"></tbody></table>
+        </div>
+        <div class="table-wrap">
+          <div class="alert-header warn" style="padding:1rem 1.2rem;border-radius:var(--radius-lg) var(--radius-lg) 0 0"><i class="fa-solid fa-clock" style="color:var(--warn)"></i> Próximos 15 Dias</div>
+          <table><thead><tr><th>Nome</th><th>Telefone</th><th>Data Pgto</th><th>Valor</th><th>Faltam</th></tr></thead><tbody id="pagProxTable"></tbody></table>
+        </div>
+      </div>
+
+      <!-- ANIVERSÁRIOS -->
+      <div id="pageAniversarios" class="page">
+        <div class="table-wrap">
+          <div class="alert-header success" style="padding:1rem 1.2rem;border-radius:var(--radius-lg) var(--radius-lg) 0 0"><i class="fa-solid fa-cake-candles" style="color:var(--success)"></i> Aniversariantes — próximos 30 dias</div>
+          <table><thead><tr><th>Nome</th><th>Telefone</th><th>E-mail</th><th>Nasc.</th><th>Faltam</th></tr></thead><tbody id="anivTable"></tbody></table>
+        </div>
+      </div>
+
+      <!-- PROTOCOLOS -->
+      <div id="pageProtocolos" class="page">
+        <div class="protocol-grid" id="protGrid"></div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<!-- MODAL CLIENTE -->
+<div class="modal-overlay hidden" id="clientModal">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title" id="modalTitle">Novo Cliente</span>
+      <button onclick="closeModal()" class="icon-btn"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-group full"><label>Nome Completo</label><input type="text" id="fNome" placeholder="Ex: João da Silva"></div>
+        <div class="form-group"><label>Telefone / WhatsApp</label><input type="text" id="fTel" placeholder="(71) 99999-0000"></div>
+        <div class="form-group"><label>CPF</label><input type="text" id="fCpf" placeholder="000.000.000-00"></div>
+        <div class="form-group full"><label>E-mail</label><input type="email" id="fEmail" placeholder="joao@email.com"></div>
+        <div class="form-group"><label>Data de Nascimento</label><input type="date" id="fNasc"></div>
+        <div class="form-group"><label>Dia do Pagamento (1–31)</label><input type="number" id="fPgtoDia" min="1" max="31" placeholder="Ex: 10"></div>
+        <div class="form-group"><label>Valor do Pagamento (R$)</label><input type="number" id="fPgtoVal" placeholder="0.00" step="0.01"></div>
+        <div class="form-group"><label>Status do Pagamento</label>
+          <select id="fPgtoStatus">
+            <option value="em_dia">Em Dia</option>
+            <option value="atrasado">Atrasado</option>
+            <option value="pago">Pago este mês</option>
+          </select>
+        </div>
+        <div class="form-group full"><label>Observações</label><textarea id="fObs" placeholder="Anotações sobre o cliente..."></textarea></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal()">Cancelar</button>
+      <button class="btn primary" onclick="saveClient()"><i class="fa-solid fa-floppy-disk"></i> Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL PROTOCOLO -->
+<div class="modal-overlay hidden" id="protModal">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">Abrir Protocolo</span>
+      <button onclick="closeProtModal()" class="icon-btn"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-group"><label>Cliente</label><select id="pCliente"></select></div>
+        <div class="form-group"><label>Tipo</label>
+          <select id="pTipo">
+            <option>Solicitação</option><option>Reclamação</option>
+            <option>Dúvida</option><option>Financeiro</option>
+            <option>Documentação</option><option>Outro</option>
+          </select>
+        </div>
+        <div class="form-group full"><label>Descrição da Demanda</label><textarea id="pDesc" placeholder="Descreva a solicitação do cliente..."></textarea></div>
+        <div class="form-group"><label>Prioridade</label>
+          <select id="pPrior">
+            <option value="normal">Normal</option>
+            <option value="alta">Alta</option>
+            <option value="urgente">Urgente</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Responsável</label><input type="text" id="pResp" placeholder="Nome do atendente"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeProtModal()">Cancelar</button>
+      <button class="btn primary" onclick="saveProtocol()"><i class="fa-solid fa-ticket"></i> Gerar Protocolo</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL DETALHE PROTOCOLO -->
+<div class="modal-overlay hidden" id="protDetailModal">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title" id="pdTitle">Protocolo</span>
+      <button onclick="document.getElementById('protDetailModal').classList.add('hidden')" class="icon-btn"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="modal-body" id="pdBody"></div>
+    <div class="modal-footer">
+      <button class="btn" onclick="document.getElementById('protDetailModal').classList.add('hidden')">Fechar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ─── DADOS DEMO ───
+let clients = [
+  {id:1,nome:"Carlos Andrade",tel:"(71) 98877-6655",cpf:"123.456.789-00",email:"carlos@email.com",nasc:"1985-03-10",pgtoDia:5,pgtoVal:1200,pgtoStatus:"atrasado",obs:"Cliente VIP, prefere contato por WhatsApp"},
+  {id:2,nome:"Fernanda Souza",tel:"(71) 99123-4567",cpf:"987.654.321-00",email:"fernanda@email.com",nasc:"1990-05-28",pgtoDia:15,pgtoVal:850,pgtoStatus:"em_dia",obs:"Imóvel no Jardins"},
+  {id:3,nome:"Roberto Lima",tel:"(71) 97654-3210",cpf:"456.123.789-00",email:"roberto@email.com",nasc:"1978-06-01",pgtoDia:20,pgtoVal:2000,pgtoStatus:"em_dia",obs:""},
+  {id:4,nome:"Mariana Costa",tel:"(71) 98765-0000",cpf:"321.654.987-00",email:"mariana@email.com",nasc:"1995-05-22",pgtoDia:1,pgtoVal:1500,pgtoStatus:"atrasado",obs:"Aguardando renovação de contrato"},
+];
+let protocols = [
+  {id:"PROT-0001",clienteId:1,tipo:"Financeiro",desc:"Cliente solicitou revisão de boleto com juros indevidos no mês de abril.",prioridade:"alta",responsavel:"Gliferson",status:"aberto",data:"2024-05-10"},
+];
+let nextId = 5;
+let nextProtNum = 2;
+let editId = null;
+
+const today = new Date(); today.setHours(0,0,0,0);
+
+// ─── LOGIN ───
+function doLogin(){
+  const u=document.getElementById('loginUser').value.trim();
+  const p=document.getElementById('loginPass').value;
+  if(u==='admin'&&p==='nucleo2024'){
+    document.getElementById('loginScreen').style.display='none';
+    document.getElementById('app').classList.add('visible');
+    renderAll();
+  } else {
+    document.getElementById('loginErr').textContent='Usuário ou senha incorretos.';
+  }
+}
+document.addEventListener('keydown',e=>{
+  if(e.key==='Enter'&&document.getElementById('loginScreen').style.display!=='none') doLogin();
+});
+function doLogout(){
+  document.getElementById('loginScreen').style.display='flex';
+  document.getElementById('app').classList.remove('visible');
+  document.getElementById('loginUser').value='';
+  document.getElementById('loginPass').value='';
+  document.getElementById('loginErr').textContent='';
+}
+
+// ─── NAVEGAÇÃO ───
+function goPage(name){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('page'+name.charAt(0).toUpperCase()+name.slice(1)).classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach(b=>{
+    if(b.getAttribute('onclick')&&b.getAttribute('onclick').includes("'"+name+"'")) b.classList.add('active');
+  });
+  const titles={dashboard:'Dashboard',clientes:'Clientes',pagamentos:'Pagamentos',aniversarios:'Aniversários',protocolos:'Protocolos'};
+  document.getElementById('pageTitle').textContent=titles[name]||name;
+  document.getElementById('btnAdd').style.display=(name==='clientes')?'inline-flex':'none';
+  document.getElementById('btnProt').style.display=(name==='protocolos')?'inline-flex':'none';
+  renderAll();
+}
+
+// ─── HELPERS ───
+function parseD(str){return new Date(str+'T00:00:00')}
+function diffDays(a,b){return Math.round((b-a)/(864e5))}
+function fmtDate(str){if(!str)return'—';return parseD(str).toLocaleDateString('pt-BR')}
+function nextPayDate(dia){
+  if(!dia) return null;
+  const d=new Date(today);
+  d.setDate(dia);
+  if(d<today) d.setMonth(d.getMonth()+1);
+  return d;
+}
+function nextBirthday(nascStr){
+  if(!nascStr) return null;
+  const b=parseD(nascStr);
+  const d=new Date(today);
+  d.setMonth(b.getMonth()); d.setDate(b.getDate());
+  if(d<today) d.setFullYear(d.getFullYear()+1);
+  return d;
+}
+function payStatusObj(c){
+  if(!c.pgtoDia) return{label:'—',cls:''};
+  if(c.pgtoStatus==='atrasado') return{label:'Atrasado',cls:'danger'};
+  if(c.pgtoStatus==='pago') return{label:'Pago',cls:'success'};
+  const np=nextPayDate(c.pgtoDia);
+  const diff=diffDays(today,np);
+  if(diff<0) return{label:'Atrasado',cls:'danger'};
+  if(diff===0) return{label:'Vence hoje',cls:'warn'};
+  if(diff<=5) return{label:diff+'d',cls:'warn'};
+  return{label:'Em dia',cls:'success'};
+}
+function fmtCurrency(v){return v?'R$ '+parseFloat(v).toLocaleString('pt-BR',{minimumFractionDigits:2}):'—'}
+
+// ─── RENDER ALL ───
+function renderAll(){
+  renderStats(); renderDashboard(); renderTable();
+  renderPagamentos(); renderAniversarios(); renderProtocolos(); updateBadges();
+}
+
+function updateBadges(){
+  const atras=clients.filter(c=>c.pgtoStatus==='atrasado'||(c.pgtoDia&&diffDays(today,nextPayDate(c.pgtoDia))<0)).length;
+  document.getElementById('badgePag').textContent=atras;
+  const aniv=clients.filter(c=>{const nb=nextBirthday(c.nasc);return nb&&diffDays(today,nb)<=7}).length;
+  document.getElementById('badgeAniv').textContent=aniv;
+  const open=protocols.filter(p=>p.status==='aberto').length;
+  document.getElementById('badgeProt').textContent=open;
+}
+
+function renderStats(){
+  const atras=clients.filter(c=>payStatusObj(c).cls==='danger').length;
+  const open=protocols.filter(p=>p.status==='aberto').length;
+  const aniv=clients.filter(c=>{const nb=nextBirthday(c.nasc);return nb&&diffDays(today,nb)<=7}).length;
+  document.getElementById('statsGrid').innerHTML=`
+    <div class="stat-card"><div class="stat-label">Total Clientes</div><div class="stat-val">${clients.length}</div><div class="stat-sub">cadastrados</div></div>
+    <div class="stat-card"><div class="stat-label">Pgto Atrasados</div><div class="stat-val danger">${atras}</div><div class="stat-sub">requer atenção</div></div>
+    <div class="stat-card"><div class="stat-label">Protocolos Abertos</div><div class="stat-val warn">${open}</div><div class="stat-sub">aguardando</div></div>
+    <div class="stat-card"><div class="stat-label">Aniv. próximos 7d</div><div class="stat-val success">${aniv}</div><div class="stat-sub">para contato</div></div>`;
+}
+
+function renderDashboard(){
+  const atras=clients.filter(c=>payStatusObj(c).cls==='danger');
+  document.getElementById('dashPagAtras').innerHTML=atras.length?atras.map(c=>`
+    <div class="alert-item">
+      <div><div class="alert-name">${c.nome}</div><div class="alert-detail">${c.tel} · ${fmtCurrency(c.pgtoVal)}</div></div>
+      <span class="tag danger">Atrasado</span>
+    </div>`).join(''):'<div class="empty" style="padding:1.5rem">Nenhum atraso ✓</div>';
+
+  const anivs=clients.filter(c=>{const nb=nextBirthday(c.nasc);return nb&&diffDays(today,nb)<=7})
+    .sort((a,b)=>diffDays(today,nextBirthday(a.nasc))-diffDays(today,nextBirthday(b.nasc)));
+  document.getElementById('dashAniv').innerHTML=anivs.length?anivs.map(c=>{
+    const d=diffDays(today,nextBirthday(c.nasc));
+    return`<div class="alert-item">
+      <div><div class="alert-name">${c.nome}</div><div class="alert-detail">${c.tel}</div></div>
+      <span class="tag warn">${d===0?'🎂 Hoje!':d===1?'Amanhã':d+'d'}</span>
+    </div>`}).join(''):'<div class="empty" style="padding:1.5rem">Nenhum nos próximos 7 dias</div>';
+
+  const prox=clients.filter(c=>{
+    if(!c.pgtoDia||payStatusObj(c).cls==='danger') return false;
+    const d=diffDays(today,nextPayDate(c.pgtoDia));
+    return d>=0&&d<=5;
+  }).sort((a,b)=>diffDays(today,nextPayDate(a.pgtoDia))-diffDays(today,nextPayDate(b.pgtoDia)));
+  document.getElementById('dashPagProx').innerHTML=prox.length?prox.map(c=>{
+    const d=diffDays(today,nextPayDate(c.pgtoDia));
+    return`<div class="alert-item">
+      <div><div class="alert-name">${c.nome}</div><div class="alert-detail">${fmtCurrency(c.pgtoVal)}</div></div>
+      <span class="tag warn">${d===0?'Hoje':d+'d'}</span>
+    </div>`}).join(''):'<div class="empty" style="padding:1.5rem">Nenhum nos próximos 5 dias</div>';
+
+  const opens=protocols.filter(p=>p.status==='aberto');
+  document.getElementById('dashProts').innerHTML=opens.length?opens.map(p=>{
+    const c=clients.find(x=>x.id===p.clienteId);
+    const priCls=p.prioridade==='urgente'?'danger':p.prioridade==='alta'?'warn':'info';
+    return`<div class="alert-item">
+      <div><div class="alert-name" style="font-family:'IBM Plex Mono',monospace;font-size:.78rem">${p.id}</div>
+      <div class="alert-detail">${c?c.nome:'—'} · ${p.tipo}</div></div>
+      <span class="tag ${priCls}">${p.prioridade}</span>
+    </div>`}).join(''):'<div class="empty" style="padding:1.5rem">Nenhum protocolo aberto</div>';
+}
+
+function renderTable(){
+  const q=(document.getElementById('searchInp')?.value||'').toLowerCase();
+  const list=clients.filter(c=>
+    c.nome.toLowerCase().includes(q)||c.cpf.includes(q)||
+    c.email.toLowerCase().includes(q)||c.tel.includes(q));
+  document.getElementById('clientTable').innerHTML=list.length?list.map(c=>{
+    const ps=payStatusObj(c);
+    const npStr=c.pgtoDia?fmtDate(nextPayDate(c.pgtoDia).toISOString().split('T')[0]):'—';
+    return`<tr>
+      <td class="td-name">${c.nome}</td>
+      <td>${c.tel}</td><td>${c.cpf}</td><td>${c.email}</td>
+      <td>${fmtDate(c.nasc)}</td><td>${npStr}</td>
+      <td><span class="tag ${ps.cls}">${ps.label}</span></td>
+      <td><div class="action-btns">
+        <button class="icon-btn" onclick="openModal('edit',${c.id})" title="Editar"><i class="fa-solid fa-pen"></i></button>
+        <button class="icon-btn" onclick="viewClient(${c.id})" title="Detalhe"><i class="fa-solid fa-eye"></i></button>
+        <button class="icon-btn del" onclick="delClient(${c.id})" title="Excluir"><i class="fa-solid fa-trash"></i></button>
+      </div></td>
+    </tr>`}).join(''):`<tr><td colspan="8" class="empty"><i class="fa-solid fa-magnifying-glass"></i><br>Nenhum cliente encontrado.</td></tr>`;
+}
+
+function renderPagamentos(){
+  const atras=clients.filter(c=>payStatusObj(c).cls==='danger');
+  document.getElementById('pagAtrasTable').innerHTML=atras.length?atras.map(c=>`
+    <tr><td class="td-name">${c.nome}</td><td>${c.tel}</td>
+    <td>Dia ${c.pgtoDia||'—'}</td><td>${fmtCurrency(c.pgtoVal)}</td>
+    <td><span class="tag danger">Atrasado</span></td></tr>`)
+    .join(''):`<tr><td colspan="5" class="empty"><i class="fa-solid fa-circle-check"></i><br>Nenhum atrasado!</td></tr>`;
+
+  const prox=clients.filter(c=>{
+    if(!c.pgtoDia) return false;
+    const d=diffDays(today,nextPayDate(c.pgtoDia));
+    return d>=0&&d<=15;
+  }).sort((a,b)=>diffDays(today,nextPayDate(a.pgtoDia))-diffDays(today,nextPayDate(b.pgtoDia)));
+  document.getElementById('pagProxTable').innerHTML=prox.length?prox.map(c=>{
+    const d=diffDays(today,nextPayDate(c.pgtoDia));
+    return`<tr><td class="td-name">${c.nome}</td><td>${c.tel}</td>
+    <td>${fmtDate(nextPayDate(c.pgtoDia).toISOString().split('T')[0])}</td>
+    <td>${fmtCurrency(c.pgtoVal)}</td>
+    <td><span class="tag warn">${d===0?'Hoje':d+'d'}</span></td></tr>`})
+    .join(''):`<tr><td colspan="5" class="empty">Nenhum nos próximos 15 dias</td></tr>`;
+}
+
+function renderAniversarios(){
+  const anivs=clients.filter(c=>{const nb=nextBirthday(c.nasc);return nb&&diffDays(today,nb)<=30})
+    .sort((a,b)=>diffDays(today,nextBirthday(a.nasc))-diffDays(today,nextBirthday(b.nasc)));
+  document.getElementById('anivTable').innerHTML=anivs.length?anivs.map(c=>{
+    const nb=nextBirthday(c.nasc); const d=diffDays(today,nb);
+    return`<tr><td class="td-name">${c.nome}</td><td>${c.tel}</td><td>${c.email}</td>
+    <td>${fmtDate(c.nasc)}</td>
+    <td><span class="tag ${d===0?'danger':d<=7?'warn':'success'}">${d===0?'🎂 Hoje!':d===1?'Amanhã':d+'d'}</span></td></tr>`})
+    .join(''):`<tr><td colspan="5" class="empty"><i class="fa-solid fa-cake-candles"></i><br>Nenhum aniversário nos próximos 30 dias</td></tr>`;
+}
+
+function renderProtocolos(){
+  document.getElementById('protGrid').innerHTML=protocols.length?protocols.slice().reverse().map(p=>{
+    const c=clients.find(x=>x.id===p.clienteId);
+    const priCls=p.prioridade==='urgente'?'danger':p.prioridade==='alta'?'warn':'info';
+    return`<div class="protocol-card">
+      <div class="protocol-top">
+        <div>
+          <div class="protocol-id">${p.id}</div>
+          <div class="protocol-name">${c?c.nome:'—'}</div>
+          <div class="alert-detail" style="font-size:.75rem;color:var(--text3);margin-top:2px">${c?c.tel:''}</div>
+        </div>
+        <div style="text-align:right">
+          <div class="protocol-date">${fmtDate(p.data)}</div>
+          <div style="margin-top:6px;display:flex;gap:6px;justify-content:flex-end">
+            <button class="icon-btn" onclick="viewProtocol('${p.id}')" title="Ver detalhe"><i class="fa-solid fa-eye"></i></button>
+            <button class="icon-btn ${p.status==='aberto'?'':'success'}" onclick="toggleProt('${p.id}')" title="${p.status==='aberto'?'Fechar':'Reabrir'}">
+              ${p.status==='aberto'?'<i class="fa-solid fa-check"></i>':'<i class="fa-solid fa-rotate-left"></i>'}
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class="protocol-body">${p.desc}</div>
+      <div class="protocol-status-row">
+        <span class="tag info">${p.tipo}</span>
+        <span class="tag ${priCls}">${p.prioridade}</span>
+        ${p.responsavel?`<span class="tag info" style="opacity:.7"><i class="fa-solid fa-user" style="font-size:.6rem"></i> ${p.responsavel}</span>`:''}
+        <span class="tag ${p.status==='aberto'?'warn':'success'}" style="margin-left:auto">${p.status==='aberto'?'Aberto':'Resolvido'}</span>
+      </div>
+    </div>`}).join(''):`<div class="empty"><i class="fa-solid fa-ticket"></i><br>Nenhum protocolo gerado ainda.<br><small style="font-size:.78rem">Clique em "Novo Protocolo" para abrir uma demanda.</small></div>`;
+}
+
+// ─── MODAL CLIENTE ───
+function openModal(mode,id){
+  editId=null;
+  document.getElementById('modalTitle').textContent=mode==='add'?'Novo Cliente':'Editar Cliente';
+  ['fNome','fTel','fCpf','fEmail','fNasc','fPgtoDia','fPgtoVal','fObs'].forEach(f=>document.getElementById(f).value='');
+  document.getElementById('fPgtoStatus').value='em_dia';
+  if(mode==='edit'&&id){
+    const c=clients.find(x=>x.id===id); if(!c) return;
+    editId=id;
+    document.getElementById('fNome').value=c.nome;
+    document.getElementById('fTel').value=c.tel;
+    document.getElementById('fCpf').value=c.cpf;
+    document.getElementById('fEmail').value=c.email;
+    document.getElementById('fNasc').value=c.nasc||'';
+    document.getElementById('fPgtoDia').value=c.pgtoDia||'';
+    document.getElementById('fPgtoVal').value=c.pgtoVal||'';
+    document.getElementById('fPgtoStatus').value=c.pgtoStatus||'em_dia';
+    document.getElementById('fObs').value=c.obs||'';
+  }
+  document.getElementById('clientModal').classList.remove('hidden');
+}
+function closeModal(){document.getElementById('clientModal').classList.add('hidden')}
+function saveClient(){
+  const nome=document.getElementById('fNome').value.trim();
+  if(!nome){alert('Informe o nome do cliente.');return}
+  const data={
+    nome,tel:document.getElementById('fTel').value.trim(),
+    cpf:document.getElementById('fCpf').value.trim(),
+    email:document.getElementById('fEmail').value.trim(),
+    nasc:document.getElementById('fNasc').value,
+    pgtoDia:parseInt(document.getElementById('fPgtoDia').value)||null,
+    pgtoVal:parseFloat(document.getElementById('fPgtoVal').value)||null,
+    pgtoStatus:document.getElementById('fPgtoStatus').value,
+    obs:document.getElementById('fObs').value.trim(),
+  };
+  if(editId){
+    const i=clients.findIndex(c=>c.id===editId);
+    clients[i]={...clients[i],...data};
+  } else {
+    clients.push({id:nextId++,...data});
+  }
+  closeModal(); renderAll();
+}
+function delClient(id){
+  if(!confirm('Remover este cliente? Ação não pode ser desfeita.')) return;
+  clients=clients.filter(c=>c.id!==id); renderAll();
+}
+function viewClient(id){
+  const c=clients.find(x=>x.id===id); if(!c) return;
+  const ps=payStatusObj(c);
+  document.getElementById('pdTitle').textContent=c.nome;
+  document.getElementById('pdBody').innerHTML=`
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;font-size:.85rem">
+      <div><div style="color:var(--text3);font-size:.72rem;text-transform:uppercase;letter-spacing:.07em;margin-bottom:4px">Telefone</div><div>${c.tel||'—'}</div></div>
+      <div><div style="color:var(--text3);font-size:.72rem;text-transform:uppercase;letter-spacing:.07em;margin-bottom:4px">CPF</div><div>${c.cpf||'—'}</div></div>
+      <div style="grid-column:1/-1"><div style="color:var(--text3);font-size:.72rem;text-transform:uppercase;letter-spacing:.07em;margin-bottom:4px">E-mail</div><div>${c.email||'—'}</div></div>
+      <div><div style="color:var(--text3);font-size:.72rem;text-transform:uppercase;letter-spacing:.07em;margin-bottom:4px">Nascimento</div><div>${fmtDate(c.nasc)}</div></div>
+      <div><div style="color:var(--text3);font-size:.72rem;text-transform:uppercase;letter-spacing:.07em;margin-bottom:4px">Dia de Pgto</div><div>Dia ${c.pgtoDia||'—'}</div></div>
+      <div><div style="color:var(--text3);font-size:.72rem;text-transform:uppercase;letter-spacing:.07em;margin-bottom:4px">Valor</div><div>${fmtCurrency(c.pgtoVal)}</div></div>
+      <div><div style="color:var(--text3);font-size:.72rem;text-transform:uppercase;letter-spacing:.07em;margin-bottom:4px">Status</div><div><span class="tag ${ps.cls}">${ps.label}</span></div></div>
+      ${c.obs?`<div style="grid-column:1/-1"><div style="color:var(--text3);font-size:.72rem;text-transform:uppercase;letter-spacing:.07em;margin-bottom:4px">Observações</div><div style="color:var(--text2)">${c.obs}</div></div>`:''}
+    </div>`;
+  document.getElementById('protDetailModal').classList.remove('hidden');
+}
+
+// ─── MODAL PROTOCOLO ───
+function openProtocolModal(){
+  const sel=document.getElementById('pCliente');
+  sel.innerHTML=clients.map(c=>`<option value="${c.id}">${c.nome}</option>`).join('');
+  document.getElementById('pDesc').value='';
+  document.getElementById('pTipo').value='Solicitação';
+  document.getElementById('pPrior').value='normal';
+  document.getElementById('pResp').value='';
+  document.getElementById('protModal').classList.remove('hidden');
+}
+function closeProtModal(){document.getElementById('protModal').classList.add('hidden')}
+function saveProtocol(){
+  const desc=document.getElementById('pDesc').value.trim();
+  if(!desc){alert('Descreva a demanda do cliente.');return}
+  const id='PROT-'+String(nextProtNum++).padStart(4,'0');
+  protocols.push({
+    id,
+    clienteId:parseInt(document.getElementById('pCliente').value),
+    tipo:document.getElementById('pTipo').value,
+    desc,
+    prioridade:document.getElementById('pPrior').value,
+    responsavel:document.getElementById('pResp').value.trim(),
+    status:'aberto',
+    data:today.toISOString().split('T')[0]
+  });
+  closeProtModal(); renderAll();
+  alert('Protocolo '+id+' gerado com sucesso!');
+}
+function toggleProt(id){
+  const p=protocols.find(x=>x.id===id);
+  if(p) p.status=p.status==='aberto'?'resolvido':'aberto';
+  renderAll();
+}
+function viewProtocol(id){
+  const p=protocols.find(x=>x.id===id); if(!p) return;
+  const c=clients.find(x=>x.id===p.clienteId);
+  const priCls=p.prioridade==='urgente'?'danger':p.prioridade==='alta'?'warn':'info';
+  document.getElementById('pdTitle').textContent=p.id;
+  document.getElementById('pdBody').innerHTML=`
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;font-size:.85rem">
+      <div><div style="color:var(--text3);font-size:.72rem;text-transform:uppercase;letter-spacing:.07em;margin-bottom:4px">Cliente</div><div>${c?c.nome:'—'}</div></div>
+      <div><div style="color:var(--text3);font-size:.72rem;text-transform:uppercase;letter-spacing:.07em;margin-bottom:4px">Data Abertura</div><div>${fmtDate(p.data)}</div></div>
+      <div><div style="color:var(--text3);font-size:.72rem;text-transform:uppercase;letter-spacing:.07em;margin-bottom:4px">Tipo</div><div><span class="tag info">${p.tipo}</span></div></div>
+      <div><div style="color:var(--text3);font-size:.72rem;text-transform:uppercase;letter-spacing:.07em;margin-bottom:4px">Prioridade</div><div><span class="tag ${priCls}">${p.prioridade}</span></div></div>
+      ${p.responsavel?`<div><div style="color:var(--text3);font-size:.72rem;text-transform:uppercase;letter-spacing:.07em;margin-bottom:4px">Responsável</div><div>${p.responsavel}</div></div>`:''}
+      <div><div style="color:var(--text3);font-size:.72rem;text-transform:uppercase;letter-spacing:.07em;margin-bottom:4px">Status</div><div><span class="tag ${p.status==='aberto'?'warn':'success'}">${p.status}</span></div></div>
+      <div style="grid-column:1/-1"><div style="color:var(--text3);font-size:.72rem;text-transform:uppercase;letter-spacing:.07em;margin-bottom:4px">Descrição</div><div style="color:var(--text2);line-height:1.6">${p.desc}</div></div>
+    </div>`;
+  document.getElementById('protDetailModal').classList.remove('hidden');
+}
+</script>
+</body>
+</html>
